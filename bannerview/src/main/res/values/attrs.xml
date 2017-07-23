@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="BannerView" >
+        <attr name="banner_indicatorActiveColor" format="color"/>
+        <attr name="banner_changeDuration" format="integer"/>
+        <attr name="banner_indicatorInactiveColor" format="color"/>
+        <attr name="banner_indicatorSize" format="integer"/>
+    </declare-styleable>
+</resources>
