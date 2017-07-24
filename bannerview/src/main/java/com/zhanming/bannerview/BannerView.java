@@ -3,6 +3,7 @@ package com.zhanming.bannerview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.support.annotation.ColorInt;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -102,23 +103,11 @@ public class BannerView extends FrameLayout {
             }
         };
         mPager.addOnPageChangeListener(pageChangeListener);
-        mPager.setOnTouchListener(new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                if(action == MotionEvent.ACTION_DOWN){
-                    cancelLooping();
-                }else if(action == MotionEvent.ACTION_UP){
-                    beginLoop();
-                }
-                return true;
-            }
-        });
     }
 
     private void parseAttrs(Context context, AttributeSet attrs) {
-        defaultActiveColor = Utils.getThemeColor(context, Utils.COLOR_PRIMARY);
-        defaultInActiveColor = Utils.getThemeColor(context, Utils.COLOR_PRIMARY_DARK);
+        defaultActiveColor = Utils.getThemeColor(context, Utils.COLOR_ACCENT);
+        defaultInActiveColor = Utils.getThemeColor(context, Utils.COLOR_PRIMARY);
         if (defaultActiveColor == 0) {
             defaultActiveColor = Color.RED;
         }
@@ -158,13 +147,14 @@ public class BannerView extends FrameLayout {
         mPager.setAdapter(adapter);
         //实现左右循环
         mPager.setCurrentItem(Integer.MAX_VALUE / 2);
-        if (canLoop) {
-            beginLoop();
-        }
+        beginLoop();
     }
 
+    /**
+     * 开始轮播
+     */
     public void beginLoop() {
-        if (isLooping) {
+        if (isLooping || !canLoop) {
             return;
         }
         mLoopTimer = new Timer();
@@ -183,6 +173,9 @@ public class BannerView extends FrameLayout {
         isLooping = true;
     }
 
+    /**
+     * 取消轮播
+     */
     public void cancelLooping() {
         if (mLoopTimer != null && isLooping) {
             mLoopTimer.cancel();
@@ -231,6 +224,17 @@ public class BannerView extends FrameLayout {
     }
 
 
+    //解决点击滑动手动切页问题
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        int action = ev.getAction();
+        if (action == MotionEvent.ACTION_UP) {
+            beginLoop();
+        } else if (action == MotionEvent.ACTION_DOWN) {
+            cancelLooping();
+        }
+        return super.dispatchTouchEvent(ev);
+    }
 
     class BannerAdapter extends PagerAdapter {
 
