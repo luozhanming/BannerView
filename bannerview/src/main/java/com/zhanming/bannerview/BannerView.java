@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -17,6 +18,8 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 还差切换回调和定时切换功能没有写
@@ -41,6 +44,9 @@ public class BannerView extends FrameLayout {
     private int indicatorInactiveColor = -1;
     private static final int DEFAULT_DURATION = 1000;
     private int changeDuration;
+    private boolean canLoop;
+    private boolean isLooping;
+    private Timer mLoopTimer;
 
     private static final int DEFAULT_INDICATOR_SIZE = 20;
     private int bannerIndicatorSize;
@@ -96,6 +102,18 @@ public class BannerView extends FrameLayout {
             }
         };
         mPager.addOnPageChangeListener(pageChangeListener);
+        mPager.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                if(action == MotionEvent.ACTION_DOWN){
+                    cancelLooping();
+                }else if(action == MotionEvent.ACTION_UP){
+                    beginLoop();
+                }
+                return true;
+            }
+        });
     }
 
     private void parseAttrs(Context context, AttributeSet attrs) {
@@ -113,6 +131,7 @@ public class BannerView extends FrameLayout {
         indicatorInactiveColor = typedArray.getColor(R.styleable.BannerView_banner_indicatorInactiveColor, defaultInActiveColor);
         changeDuration = typedArray.getInteger(R.styleable.BannerView_banner_changeDuration, DEFAULT_DURATION);
         bannerIndicatorSize = typedArray.getInteger(R.styleable.BannerView_banner_indicatorSize, DEFAULT_INDICATOR_SIZE);
+        canLoop = typedArray.getBoolean(R.styleable.BannerView_banner_loopable, true);
         typedArray.recycle();
     }
 
@@ -138,7 +157,37 @@ public class BannerView extends FrameLayout {
         }
         mPager.setAdapter(adapter);
         //实现左右循环
-        mPager.setCurrentItem(Integer.MAX_VALUE/2);
+        mPager.setCurrentItem(Integer.MAX_VALUE / 2);
+        if (canLoop) {
+            beginLoop();
+        }
+    }
+
+    public void beginLoop() {
+        if (isLooping) {
+            return;
+        }
+        mLoopTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPager.setCurrentItem(mPager.getCurrentItem() + 1);
+                    }
+                });
+            }
+        };
+        mLoopTimer.schedule(task, changeDuration, changeDuration);
+        isLooping = true;
+    }
+
+    public void cancelLooping() {
+        if (mLoopTimer != null && isLooping) {
+            mLoopTimer.cancel();
+        }
+        isLooping = false;
     }
 
 
@@ -158,8 +207,7 @@ public class BannerView extends FrameLayout {
         indicators.remove(position);
         mIndicatorContainer.removeViewAt(position);
         adapter.setDatas(items);
-        currentPosition = Integer.MAX_VALUE/2;
-        mPager.setCurrentItem(currentPosition);
+        mPager.setCurrentItem(Integer.MAX_VALUE / 2);
     }
 
 
@@ -181,6 +229,7 @@ public class BannerView extends FrameLayout {
             }
         }
     }
+
 
 
     class BannerAdapter extends PagerAdapter {

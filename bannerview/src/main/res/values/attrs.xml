@@ -6,5 +6,6 @@
         <attr name="banner_changeDuration" format="integer"/>
         <attr name="banner_indicatorInactiveColor" format="color"/>
         <attr name="banner_indicatorSize" format="integer"/>
+        <attr name="banner_loopable" format="boolean"/>
     </declare-styleable>
 </resources>
