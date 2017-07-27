@@ -20,9 +20,9 @@ This Android library helps user to use ViewPager with carousel.
 
 2.Initialize the View on the code.
 ```Java
-bannerView = (BannerView) findViewById(R.id.bannerView);
+        bannerView = (BannerView) findViewById(R.id.bannerView);
         TextView textView = new TextView(this);
-        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,  ViewGroup.LayoutParams.WRAP_CONTENT));
         textView.setText("This is a textViewPage");
 
         bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
