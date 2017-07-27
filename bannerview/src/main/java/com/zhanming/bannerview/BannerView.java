@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -129,23 +130,27 @@ public class BannerView extends FrameLayout {
         //设置指示器
         int size = items.size();
         for (int i = 0; i < size; i++) {
-            IndicatorView indicator = new IndicatorView(getContext());
-            indicator.setSize(bannerIndicatorSize);
-            indicator.setActiveColor(indicatorActiveColor);
-            indicator.setInactiveColor(indicatorInactiveColor);
-            if (i == mChangePeroid) {
-                indicator.setState(IndicatorView.ACTIVE);
-            } else {
-                indicator.setState(IndicatorView.INACTIVE);
-            }
-            indicator.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            mIndicatorContainer.addView(indicator);
-            indicators.add(indicator);
+            addIndicatorToContainer(i);
         }
         //实现左右循环
         mPager.setCurrentItem(Integer.MAX_VALUE / 2);
         beginLoop();
         hasInitialized = true;
+    }
+
+    private void addIndicatorToContainer(int position) {
+        IndicatorView indicator = new IndicatorView(getContext());
+        indicator.setSize(bannerIndicatorSize);
+        indicator.setActiveColor(indicatorActiveColor);
+        indicator.setInactiveColor(indicatorInactiveColor);
+        if (position == mCurrentPosition) {
+            indicator.setState(IndicatorView.ACTIVE);
+        } else {
+            indicator.setState(IndicatorView.INACTIVE);
+        }
+        indicator.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        mIndicatorContainer.addView(indicator);
+        indicators.add(indicator);
     }
 
     /**
@@ -186,13 +191,23 @@ public class BannerView extends FrameLayout {
     public BannerView addItem(BannerItem item) {
         items.add(item);
         if (hasInitialized) {
-            mPager.getAdapter().notifyDataSetChanged();
+            if(isLooping){
+                cancelLooping();
+            }
+            mIndicatorContainer.removeAllViews();
+            indicators.clear();
+            initialize();
+            beginLoop();
         }
         return this;
     }
 
     public BannerView setChangePeroid(int peroid) {
         this.mChangePeroid = peroid;
+        if (isLooping) {
+            cancelLooping();
+            beginLoop();
+        }
         return this;
     }
 
@@ -281,14 +296,16 @@ public class BannerView extends FrameLayout {
             int pos = position % datas.size();
             final BannerItem item = datas.get(pos);
             View bannerItemView = getBannerItemView(item);
-            container.addView(bannerItemView);
-            if (item.getAction() != null) {
-                bannerItemView.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        item.getAction().onAction(item);
-                    }
-                });
+            if(bannerItemView.getParent()==null){
+                container.addView(bannerItemView);
+                if (item.getAction() != null) {
+                    bannerItemView.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            item.getAction().onAction(item);
+                        }
+                    });
+            }
             }
             Log.d(TAG, "instantiateItem:" + position);
             return bannerItemView;

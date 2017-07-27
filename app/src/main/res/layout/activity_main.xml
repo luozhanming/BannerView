@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
     tools:context="com.zhanming.sample.MainActivity">
 
 
@@ -11,4 +13,51 @@
         android:id="@+id/bannerView"
         android:layout_width="match_parent"
         android:layout_height="160dp"></com.zhanming.bannerview.BannerView>
-</RelativeLayout>
+
+    <Button
+        android:id="@+id/btn1"
+        android:layout_marginTop="10dp"
+        android:text="添加Item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btn2"
+        android:layout_marginTop="10dp"
+        android:text="移除Item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn3"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="更改Indicator顔色"/>
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:inputType="number"
+            android:hint="請輸入切換周期"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn4"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:text="切換"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn5"
+        android:layout_marginTop="10dp"
+        android:text="關閉輪播"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>
