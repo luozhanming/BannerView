@@ -42,7 +42,5 @@ public class MainActivity extends AppCompatActivity {
             //    .setIndicatorActiveColor(Color.BLUE)
            //     .setIndicatorInactiveColor(Color.RED)
                 .initialize();
-
-
     }
 }
