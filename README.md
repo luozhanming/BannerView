@@ -20,15 +20,28 @@ This Android library helps user to use ViewPager with carousel.
 
 2.Initialize the View on the code.
 ```Java
-        bannerView = (BannerView) findViewById(R.id.bannerView);
+bannerView = (BannerView) findViewById(R.id.bannerView);
+        TextView textView = new TextView(this);
+        textView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        textView.setText("This is a textViewPage");
 
-        bannerView.addItem(new BannerItem(R.mipmap.ic_launcher))
-                .addItem(new BannerItem(android.R.mipmap.sym_def_app_icon))
-                .addItem(new BannerItem(android.R.drawable.dialog_frame))
-                .setIndicatorActiveColor(Color.Red)
-                .setIndicatorIncactiveColor(Color.Green)
-                .setChangePeroid(5000)
-                .canLoop(true)
+        bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
+            @Override
+            public void onAction(BannerItem item) {
+                Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Cat("美短", 5)))
+                .addItem(new BannerItem<Cat>(textView, null, null))
+                .addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
+                    @Override
+                    public void onAction(BannerItem item) {
+                        Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Cat("中华田园", 7)))
+                .setChangePeroid(3000)
+                //    .setIndicatorActiveColor(Color.BLUE)
+                //     .setIndicatorInactiveColor(Color.RED)
                 .initialize();
 ```
 
