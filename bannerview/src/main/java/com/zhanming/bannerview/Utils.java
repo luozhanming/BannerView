@@ -1,9 +1,12 @@
 package com.zhanming.bannerview;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.IntDef;
 import android.util.TypedValue;
 
+import java.io.InputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -39,6 +42,8 @@ public class Utils {
         }
         return value.data;
     }
+
+
 
 
 }

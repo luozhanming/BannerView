@@ -3,7 +3,6 @@ package com.zhanming.bannerview;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.support.annotation.ColorInt;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -17,15 +16,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * 还差切换回调和定时切换功能没有写
- * <p>
- * 更新BadgeItem的逻辑没写
  * Created by zhanming on 2017/7/17.
  */
 
@@ -43,16 +40,17 @@ public class BannerView extends FrameLayout {
     private int indicatorActiveColor = -1;
     private int defaultInActiveColor = Color.GREEN;
     private int indicatorInactiveColor = -1;
-    private static final int DEFAULT_DURATION = 1000;
-    private int changeDuration;
+    private static final int DEFAULT_PEROID = 1000;
+    private int mChangePeroid;
     private boolean canLoop;
     private boolean isLooping;
+    private boolean hasInitialized = false;
     private Timer mLoopTimer;
 
     private static final int DEFAULT_INDICATOR_SIZE = 20;
     private int bannerIndicatorSize;
 
-    private int currentPosition = 0;
+    private int mCurrentPosition = 0;
 
 
     public BannerView(Context context) {
@@ -73,6 +71,8 @@ public class BannerView extends FrameLayout {
         //findViewById一定要调用根布局的
         View parentView = LayoutInflater.from(getContext()).inflate(R.layout.container_banner, this, true);
         mPager = (ViewPager) parentView.findViewById(R.id.pager);
+        BannerAdapter adapter = new BannerAdapter();
+        mPager.setAdapter(adapter);
         mIndicatorContainer = (LinearLayout) parentView.findViewById(R.id.indicators);
         items = new ArrayList<>();
         indicators = new ArrayList<>();
@@ -85,16 +85,15 @@ public class BannerView extends FrameLayout {
             @Override
             public void onPageSelected(int position) {
                 //设置指示器
-                currentPosition = position % items.size();
+                mCurrentPosition = position % items.size();
                 int size = indicators.size();
                 for (int i = 0; i < size; i++) {
-                    if (currentPosition == i) {
+                    if (mCurrentPosition == i) {
                         indicators.get(i).setState(IndicatorView.ACTIVE);
                     } else {
                         indicators.get(i).setState(IndicatorView.INACTIVE);
                     }
                 }
-
             }
 
             @Override
@@ -115,27 +114,26 @@ public class BannerView extends FrameLayout {
             defaultInActiveColor = Color.GREEN;
         }
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.BannerView);
-
         indicatorActiveColor = typedArray.getColor(R.styleable.BannerView_banner_indicatorActiveColor, defaultActiveColor);
         indicatorInactiveColor = typedArray.getColor(R.styleable.BannerView_banner_indicatorInactiveColor, defaultInActiveColor);
-        changeDuration = typedArray.getInteger(R.styleable.BannerView_banner_changeDuration, DEFAULT_DURATION);
+        mChangePeroid = typedArray.getInteger(R.styleable.BannerView_banner_changeDuration, DEFAULT_PEROID);
         bannerIndicatorSize = typedArray.getInteger(R.styleable.BannerView_banner_indicatorSize, DEFAULT_INDICATOR_SIZE);
         canLoop = typedArray.getBoolean(R.styleable.BannerView_banner_loopable, true);
         typedArray.recycle();
     }
 
     public void initialize() {
-        BannerAdapter adapter = new BannerAdapter();
         if (items.size() != 0) {
-            adapter.setItems(items);
+            ((BannerAdapter) mPager.getAdapter()).setItems(items);
         }
+        //设置指示器
         int size = items.size();
         for (int i = 0; i < size; i++) {
             IndicatorView indicator = new IndicatorView(getContext());
             indicator.setSize(bannerIndicatorSize);
             indicator.setActiveColor(indicatorActiveColor);
             indicator.setInactiveColor(indicatorInactiveColor);
-            if (i == currentPosition) {
+            if (i == mChangePeroid) {
                 indicator.setState(IndicatorView.ACTIVE);
             } else {
                 indicator.setState(IndicatorView.INACTIVE);
@@ -144,10 +142,10 @@ public class BannerView extends FrameLayout {
             mIndicatorContainer.addView(indicator);
             indicators.add(indicator);
         }
-        mPager.setAdapter(adapter);
         //实现左右循环
         mPager.setCurrentItem(Integer.MAX_VALUE / 2);
         beginLoop();
+        hasInitialized = true;
     }
 
     /**
@@ -158,6 +156,7 @@ public class BannerView extends FrameLayout {
             return;
         }
         mLoopTimer = new Timer();
+        WeakReference<Timer> wr = new WeakReference<>(mLoopTimer);
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -169,7 +168,7 @@ public class BannerView extends FrameLayout {
                 });
             }
         };
-        mLoopTimer.schedule(task, changeDuration, changeDuration);
+        mLoopTimer.schedule(task, mChangePeroid, mChangePeroid);
         isLooping = true;
     }
 
@@ -186,41 +185,59 @@ public class BannerView extends FrameLayout {
 
     public BannerView addItem(BannerItem item) {
         items.add(item);
+        if (hasInitialized) {
+            mPager.getAdapter().notifyDataSetChanged();
+        }
         return this;
     }
 
-    public BannerView setChangeDuration(int duration) {
-        this.changeDuration = duration;
+    public BannerView setChangePeroid(int peroid) {
+        this.mChangePeroid = peroid;
         return this;
     }
 
-    public void removeBannerItem(int position) {
+    public void removeItem(int position) {
+        if (position > items.size() - 1) {
+            position = items.size() - 1;
+        } else if (position < 0) {
+            position = 0;
+        }
         BannerAdapter adapter = (BannerAdapter) mPager.getAdapter();
         items.remove(position);
         indicators.remove(position);
         mIndicatorContainer.removeViewAt(position);
-        adapter.setDatas(items);
+        adapter.setItems(items);
         mPager.setCurrentItem(Integer.MAX_VALUE / 2);
     }
 
 
-    public void setIndicatorActiveColor(@ColorInt int color) {
+    public BannerView setIndicatorActiveColor(@ColorInt int color) {
         this.indicatorActiveColor = color;
         if (indicators != null && indicators.size() > 0) {
-            indicators.get(currentPosition).setActiveColor(color);
+            int size = items.size();
+            for (int i = 0; i < size; i++) {
+                indicators.get(i).setActiveColor(color);
+                if (hasInitialized) {
+                    ((IndicatorView) mIndicatorContainer.getChildAt(i)).setActiveColor(color);
+                }
+            }
         }
+        return this;
     }
 
-    public void setIndicatorInactiveColor(@ColorInt int color) {
+    public BannerView setIndicatorInactiveColor(@ColorInt int color) {
         this.indicatorInactiveColor = color;
         int size = indicators.size();
         if (indicators != null && size > 0) {
             for (int i = 0; i < size; i++) {
-                if (i != currentPosition) {
-                    indicators.get(i).setInactiveColor(color);
+                indicators.get(i).setInactiveColor(color);
+                //已初始化
+                if (hasInitialized) {
+                    ((IndicatorView) mIndicatorContainer.getChildAt(i)).setInactiveColor(color);
                 }
             }
         }
+        return this;
     }
 
 
@@ -246,6 +263,7 @@ public class BannerView extends FrameLayout {
 
         public void setItems(List<BannerItem> items) {
             this.datas = items;
+            notifyDataSetChanged();
         }
 
         @Override
@@ -261,9 +279,17 @@ public class BannerView extends FrameLayout {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             int pos = position % datas.size();
-            BannerItem item = datas.get(pos);
+            final BannerItem item = datas.get(pos);
             View bannerItemView = getBannerItemView(item);
             container.addView(bannerItemView);
+            if (item.getAction() != null) {
+                bannerItemView.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        item.getAction().onAction(item);
+                    }
+                });
+            }
             Log.d(TAG, "instantiateItem:" + position);
             return bannerItemView;
         }
@@ -279,7 +305,7 @@ public class BannerView extends FrameLayout {
                 bannerItemView = item.getItem();
             } else if (item.getDrawable() != -1) {
                 ImageView view = new ImageView(getContext());
-                view.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                view.setScaleType(ImageView.ScaleType.FIT_XY);
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 view.setImageResource(item.getDrawable());
                 bannerItemView = view;
@@ -289,13 +315,6 @@ public class BannerView extends FrameLayout {
             return bannerItemView;
         }
 
-
-        public void setDatas(List<BannerItem> items) {
-            this.datas = items;
-            notifyDataSetChanged();
-        }
-
     }
-
 }
 
