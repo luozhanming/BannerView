@@ -8,6 +8,7 @@ This Android library helps user to use ViewPager with carousel.
 * Show the indicators to let you know which item is showing.
 * Customize the indicators color or use the app theme color by default.
 * Wrap your entity object to the BannerItem.
+* Provide the interface when you click the item to handle the item click event.
 
 ## Usage
 1.Add the BannerView on the layout file.
