@@ -7,6 +7,7 @@ This Android library helps user to use ViewPager with carousel.
 * The BannerView can automatically change the page in the regular period which you can set.
 * Show the indicators to let you know which item is showing.
 * Customize the indicators color or use the app theme color by default.
+* Wrap your entity object to the BannerItem.
 
 ## Usage
 1.Add the BannerView on the layout file.
