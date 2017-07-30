@@ -47,3 +47,21 @@ This Android library helps user to use ViewPager with carousel.
                 .initialize();
 ```
 
+3.Refresh the Banner when you has loaded new datas.
+```Java
+        bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
+            @Override
+            public void onAction(BannerItem item) {
+                Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
+
+            }
+        }, new Cat("美短", 5)))
+                .addItem(new BannerItem<Cat>(textView, null, null))
+                .addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
+                    @Override
+                    public void onAction(BannerItem item) {
+                        Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }, new Cat("中华田园", 7)))
+                .refresh();
+```
