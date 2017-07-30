@@ -14,16 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="160dp"></com.zhanming.bannerview.BannerView>
 
-    <Button
-        android:id="@+id/btn1"
-        android:layout_marginTop="10dp"
-        android:text="添加Item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/btn2"
         android:layout_marginTop="10dp"
-        android:text="移除Item"
+        android:text="加载刷新新Item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
