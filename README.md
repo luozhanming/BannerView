@@ -1,7 +1,7 @@
 # BannerView
 This Android library helps user to use ViewPager with carousel.
 
-<img src="https://github.com/luozhanming/BannerView/edit/master/thisgif.gif" width="200" height="320" />
+<img src="https://github.com/luozhanming/BannerView/blob/master/mygif.gif" width="200" height="320" />
 
 ## Features
 * The BannerView wraps the ViewPager and provides the simple method to use.
