@@ -13,7 +13,7 @@ public class BannerItem<T> {
     private View item;
     private int drawable = -1;
     private String imgUrl;
-    private BannerAction<T> mAction;
+    private BannerAction mAction;
 
 
     public BannerItem(View item, @Nullable BannerAction action,@Nullable T content) {
