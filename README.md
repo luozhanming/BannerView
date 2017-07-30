@@ -2,7 +2,6 @@
 This Android library helps user to use ViewPager with carousel.
 
 ## Features
-* The BannerView work like a ViewPager.
 * The BannerView wraps the ViewPager and provides the simple method to use.
 * The BannerView can automatically change the page in the regular period which you can set.
 * Show the indicators to let you know which item is showing.
