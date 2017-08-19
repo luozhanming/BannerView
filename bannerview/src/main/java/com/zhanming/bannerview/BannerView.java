@@ -8,6 +8,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,6 +51,7 @@ public class BannerView extends FrameLayout {
     private boolean hasInitialized = false;
     private Timer mLoopTimer;
     private BannerAdapter mBannerAdapter;
+    private ImageLoader mLoader;
 
     private static final int DEFAULT_INDICATOR_SIZE = 20;
     private int bannerIndicatorSize;
@@ -125,27 +127,9 @@ public class BannerView extends FrameLayout {
         mChangePeroid = typedArray.getInteger(R.styleable.BannerView_banner_changeDuration, DEFAULT_PEROID);
         bannerIndicatorSize = typedArray.getInteger(R.styleable.BannerView_banner_indicatorSize, DEFAULT_INDICATOR_SIZE);
         canLoop = typedArray.getBoolean(R.styleable.BannerView_banner_loopable, true);
+
         typedArray.recycle();
     }
-
-    public void initialize() throws IllegalAccessException {
-        if(items.size()==0){
-            throw new IllegalAccessException("Invoke addItem method before initialize.");
-        }
-        if (items.size() != 0) {
-            mBannerAdapter.setItems(items);
-        }
-        //设置指示器
-        int size = items.size();
-        for (int i = 0; i < size; i++) {
-            addIndicatorToContainer(i);
-        }
-        //实现左右循环
-        mPager.setCurrentItem(mCurrentPosition);
-        beginLoop();
-        hasInitialized = true;
-    }
-
 
     private void addIndicatorToContainer(int position) {
         IndicatorView indicator = new IndicatorView(getContext());
@@ -165,7 +149,7 @@ public class BannerView extends FrameLayout {
     /**
      * 开始轮播
      */
-    public void beginLoop() {
+    private void beginLoop() {
         if (isLooping || !canLoop) {
             return;
         }
@@ -186,16 +170,33 @@ public class BannerView extends FrameLayout {
         isLooping = true;
     }
 
-    /**
-     * 取消轮播
-     */
-    public void cancelLooping() {
-        if (mLoopTimer != null && isLooping) {
-            mLoopTimer.cancel();
-        }
-        isLooping = false;
+
+    private void resetBanner() {
+        cancelLooping();
+        indicators.clear();
+        mIndicatorContainer.removeAllViews();
+        this.items.clear();
+        mBannerAdapter.notifyDataSetChanged();
     }
 
+
+    public void initialize() throws IllegalAccessException {
+        if (items.size() == 0) {
+            throw new IllegalAccessException("Invoke addItem method before initialize.");
+        }
+        if (items.size() != 0) {
+            mBannerAdapter.setItems(items);
+        }
+        //设置指示器
+        int size = items.size();
+        for (int i = 0; i < size; i++) {
+            addIndicatorToContainer(i);
+        }
+        //实现左右循环
+        mPager.setCurrentItem(mCurrentPosition);
+        beginLoop();
+        hasInitialized = true;
+    }
 
     /**
      * 刷新Banner
@@ -219,14 +220,11 @@ public class BannerView extends FrameLayout {
         beginLoop();
     }
 
-    private void resetBanner() {
-        cancelLooping();
-        indicators.clear();
-        mIndicatorContainer.removeAllViews();
-        this.items.clear();
-        mBannerAdapter.notifyDataSetChanged();
-    }
 
+    public BannerView setImageLoader(ImageLoader loader) {
+        this.mLoader = loader;
+        return this;
+    }
 
     public BannerView addItem(BannerItem item) {
         if (hasInitialized) {
@@ -237,9 +235,6 @@ public class BannerView extends FrameLayout {
         return this;
     }
 
-    public List<BannerItem> getItems(){
-        return this.items;
-    }
 
     public BannerView setChangePeroid(int peroid) {
         this.mChangePeroid = peroid;
@@ -249,7 +244,6 @@ public class BannerView extends FrameLayout {
         }
         return this;
     }
-
 
     public BannerView setIndicatorActiveColor(@ColorInt int color) {
         this.indicatorActiveColor = color;
@@ -280,13 +274,46 @@ public class BannerView extends FrameLayout {
         return this;
     }
 
+    /**
+     * 设置是否可轮播
+     */
+    public BannerView setCanLoop(boolean canLoop) {
+        this.canLoop = canLoop;
+        if (hasInitialized) {
+            if (canLoop) {
+                beginLoop();
+            } else {
+                cancelLooping();
+            }
+        }
+        return this;
+    }
+
+
+    public List<BannerItem> getItems() {
+        return this.items;
+    }
+
+    /**
+     * 取消轮播
+     */
+    public void cancelLooping() {
+        if (mLoopTimer != null && isLooping) {
+            mLoopTimer.cancel();
+        }
+        isLooping = false;
+        canLoop = false;
+    }
+
 
     //解决点击滑动手动切页问题
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         int action = ev.getAction();
         if (action == MotionEvent.ACTION_UP) {
-            beginLoop();
+            if (canLoop) {
+                beginLoop();
+            }
         } else if (action == MotionEvent.ACTION_DOWN) {
             cancelLooping();
         }
@@ -298,7 +325,6 @@ public class BannerView extends FrameLayout {
         private List<BannerItem> datas;
 
         public BannerAdapter() {
-            this.datas = datas;
         }
 
         public void setItems(List<BannerItem> items) {
@@ -318,7 +344,7 @@ public class BannerView extends FrameLayout {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            if (datas.size() == 0) {
+            if (datas == null || datas.size() == 0) {
                 return null;
             }
             int pos = position % datas.size();
@@ -344,15 +370,28 @@ public class BannerView extends FrameLayout {
             container.removeView((View) object);
         }
 
+        //通過BannerItem返回Banner显示的View
         private View getBannerItemView(BannerItem item) {
             View bannerItemView = null;
-            if (item.getItem() != null) {
-                bannerItemView = item.getItem();
+            if (item.getView() != null) {
+                bannerItemView = item.getView();
             } else if (item.getDrawable() != -1) {
                 ImageView view = new ImageView(getContext());
                 view.setScaleType(ImageView.ScaleType.FIT_XY);
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                view.setImageResource(item.getDrawable());
+                if (mLoader != null) {
+                    mLoader.displayImage(getContext(), item.getDrawable(), view);
+                } else {
+                    view.setImageResource(item.getDrawable());
+                }
+                bannerItemView = view;
+            } else if (item.getImgUrl() != null) {
+                ImageView view = new ImageView(getContext());
+                view.setScaleType(ImageView.ScaleType.FIT_XY);
+                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                if (mLoader != null) {
+                    mLoader.displayImage(getContext(), item.getImgUrl(), view);
+                }
                 bannerItemView = view;
             } else {
                 throw new IllegalArgumentException("The BannerItem doesn't have content.");

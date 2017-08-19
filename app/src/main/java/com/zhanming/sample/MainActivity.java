@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         bannerView = (BannerView) findViewById(R.id.bannerView);
+
         btn2 = (Button) findViewById(R.id.btn2);
         btn3 = (Button) findViewById(R.id.btn3);
         btn4 = (Button) findViewById(R.id.btn4);
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 }
             }, new Cat("美短", 5)))
-                    .addItem(new BannerItem<Cat>(textView, null, null))
+                    .addItem(new BannerItem<Cat>("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=2247692397,1189743173&fm=5", null, new Cat("布偶猫",5)))
                     .addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
                         @Override
                         public void onAction(BannerItem item) {
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }, new Cat("中华田园", 7)))
                     .setChangePeroid(3000)
+                    .setImageLoader(new PicassoLoader())
                     //    .setIndicatorActiveColor(Color.BLUE)
                     //     .setIndicatorInactiveColor(Color.RED)
                     .initialize();
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     boolean colorFlag;
+
 
     @Override
     public void onClick(View v) {
@@ -82,12 +85,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                             }
                         }, new Cat("美短", 5)))
-                        .addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
-                            @Override
-                            public void onAction(BannerItem item) {
-                                Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
-                            }
-                        }, new Cat("中华田园", 7)))
                         .refresh();
                 break;
             case R.id.btn3:
@@ -107,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bannerView.setChangePeroid(duration);
                 break;
             case R.id.btn5:
-                bannerView.cancelLooping();
+                bannerView.setCanLoop(false);
                 break;
         }
     }

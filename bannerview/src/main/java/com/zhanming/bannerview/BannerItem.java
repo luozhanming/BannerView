@@ -5,19 +5,20 @@ import android.view.View;
 
 /**
  * Created by zhanming on 2017/7/17.
+ * BannerView内显示项的封装类，暂时支持View，本地drawableRes与网络图片
  */
 
 public class BannerItem<T> {
 
     private T mContent;
-    private View item;
+    private View view;
     private int drawable = -1;
     private String imgUrl;
     private BannerAction mAction;
 
 
-    public BannerItem(View item, @Nullable BannerAction action,@Nullable T content) {
-        this.item = item;
+    public BannerItem(View v, @Nullable BannerAction action,@Nullable T content) {
+        this.view = v;
         this.mContent = content;
         this.mAction =action;
     }
@@ -38,8 +39,8 @@ public class BannerItem<T> {
         return this.imgUrl;
     }
 
-    public View getItem() {
-        return item;
+    public View getView() {
+        return view;
     }
 
     public int getDrawable() {
