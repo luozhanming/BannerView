@@ -4,20 +4,22 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.support.annotation.ColorInt;
+import android.support.annotation.IntDef;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +33,37 @@ import java.util.TimerTask;
 public class BannerView extends FrameLayout {
 
     private static final String TAG = "BannerView";
+    public static final int GRAVITY_LEFT = 1;
+    public static final int GRAVITY_RIGHT = 2;
+    public static final int GRAVITY_CENTER = 3;
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({GRAVITY_LEFT, GRAVITY_RIGHT, GRAVITY_CENTER})
+    public @interface Gravity {
+
+    }
+
+    public static final int MODE_NOTITLE_NUM = 1;
+    public static final int MODE_NOTITLE_INDICATOR = 2;
+    public static final int MODE_TITLE_NUM = 3;
+    public static final int MODE_TITLE_INDICATORS = 4;
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({MODE_NOTITLE_NUM, MODE_NOTITLE_INDICATOR, MODE_TITLE_NUM, MODE_TITLE_INDICATORS})
+    public @interface Mode {
+
+    }
+
+    //控件成员
     private ViewPager mPager;
-    private LinearLayout mIndicatorContainer;
+    private LinearLayout mIndicatorContainer1;
+    private TextView tv_page1;
+    private FrameLayout container_titleNum;
+    private TextView tv_pageState2;
+    private TextView tv_title1;
+    private FrameLayout container_titleIndicator;
+    private TextView tv_title2;
+    private LinearLayout mIndicatorContainer2;
 
     private List<BannerItem> items;
     private List<IndicatorView> indicators;
@@ -44,6 +74,7 @@ public class BannerView extends FrameLayout {
     private int indicatorActiveColor = -1;
     private int defaultInActiveColor = Color.GREEN;
     private int indicatorInactiveColor = -1;
+    private int indicatorsGravity;
     private static final int DEFAULT_PEROID = 1000;
     private int mChangePeroid;
     private boolean canLoop;
@@ -52,6 +83,8 @@ public class BannerView extends FrameLayout {
     private Timer mLoopTimer;
     private BannerAdapter mBannerAdapter;
     private ImageLoader mLoader;
+
+    private int mode;
 
     private static final int DEFAULT_INDICATOR_SIZE = 20;
     private int bannerIndicatorSize;
@@ -78,31 +111,34 @@ public class BannerView extends FrameLayout {
         //findViewById一定要调用根布局的
         View parentView = LayoutInflater.from(getContext()).inflate(R.layout.container_banner, this, true);
         mPager = (ViewPager) parentView.findViewById(R.id.pager);
+
         mBannerAdapter = new BannerAdapter();
         mPager.setAdapter(mBannerAdapter);
-        mIndicatorContainer = (LinearLayout) parentView.findViewById(R.id.indicators);
+        mIndicatorContainer1 = (LinearLayout) parentView.findViewById(R.id.indicators);
+        tv_page1 = (TextView) parentView.findViewById(R.id.container_modeWithNoTitleNum);
+        container_titleNum = (FrameLayout) parentView.findViewById(R.id.container_modeWithTitleNum);
+        tv_pageState2 = (TextView) parentView.findViewById(R.id.pageNum);
+        tv_title1 = (TextView) parentView.findViewById(R.id.bannerTitle);
+        container_titleIndicator = (FrameLayout) parentView.findViewById(R.id.container_modeWithTitleIndicators);
+        mIndicatorContainer2 = (LinearLayout) parentView.findViewById(R.id.indicators2);
+        tv_title2 = (TextView) parentView.findViewById(R.id.bannerTitle2);
+        indicators = new ArrayList<>();
         items = new ArrayList<>();
         tempItems = new ArrayList<>();
-        indicators = new ArrayList<>();
         ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 Log.d(TAG, "position = " + position + ",positionOffset = " + positionOffset + ",positionOffsetPixels = " + positionOffsetPixels);
+                //可加入指示器动画
             }
 
             @Override
             public void onPageSelected(int position) {
                 //设置指示器
                 mCurrentPosition = position % items.size();
-                int size = indicators.size();
-                for (int i = 0; i < size; i++) {
-                    if (mCurrentPosition == i) {
-                        indicators.get(i).setState(IndicatorView.ACTIVE);
-                    } else {
-                        indicators.get(i).setState(IndicatorView.INACTIVE);
-                    }
-                }
+                changePage();
             }
+
 
             @Override
             public void onPageScrollStateChanged(int state) {
@@ -110,6 +146,85 @@ public class BannerView extends FrameLayout {
             }
         };
         mPager.addOnPageChangeListener(pageChangeListener);
+    }
+
+
+    //可以适当加点动画
+    private void changePage() {
+        int size = items.size();
+        switch (mode) {
+            case MODE_NOTITLE_NUM:
+                tv_page1.setText((mCurrentPosition + 1) + "/" + size);
+                break;
+            case MODE_NOTITLE_INDICATOR:
+                for (int i = 0; i < size; i++) {
+                    if (mCurrentPosition == i) {
+                        indicators.get(i).setState(IndicatorView.ACTIVE);
+                    } else {
+                        indicators.get(i).setState(IndicatorView.INACTIVE);
+                    }
+                }
+                break;
+            case MODE_TITLE_NUM:
+                tv_pageState2.setText((mCurrentPosition + 1) + "/" + size);
+                String title = items.get(mCurrentPosition).getTitle();
+                if (title == null) {
+                    title = "页面" + mCurrentPosition;
+                }
+                tv_title1.setText(title);
+                break;
+            case MODE_TITLE_INDICATORS:
+                String title1 = items.get(mCurrentPosition).getTitle();
+                if (title1 == null) {
+                    title1 = "页面" + mCurrentPosition;
+                }
+                tv_title2.setText(title1);
+                for (int i = 0; i < size; i++) {
+                    if (mCurrentPosition == i) {
+                        indicators.get(i).setState(IndicatorView.ACTIVE);
+                    } else {
+                        indicators.get(i).setState(IndicatorView.INACTIVE);
+                    }
+                }
+                break;
+        }
+    }
+
+
+    private void initWithMode() {
+        int size = items.size();
+        switch (mode) {
+            case MODE_NOTITLE_NUM:
+                tv_page1.setVisibility(View.VISIBLE);
+                mIndicatorContainer1.setVisibility(View.GONE);
+                container_titleNum.setVisibility(View.GONE);
+                container_titleIndicator.setVisibility(View.GONE);
+                break;
+            case MODE_NOTITLE_INDICATOR:
+                mIndicatorContainer1.setVisibility(View.VISIBLE);
+                tv_page1.setVisibility(View.GONE);
+                container_titleNum.setVisibility(View.GONE);
+                container_titleIndicator.setVisibility(View.GONE);
+                for (int i = 0; i < size; i++) {
+                    addIndicatorToContainer(i);
+                }
+                break;
+            case MODE_TITLE_NUM:
+                container_titleNum.setVisibility(View.VISIBLE);
+                tv_page1.setVisibility(View.GONE);
+                container_titleIndicator.setVisibility(View.GONE);
+                mIndicatorContainer1.setVisibility(View.GONE);
+                break;
+            case MODE_TITLE_INDICATORS:
+                container_titleIndicator.setVisibility(View.VISIBLE);
+                mIndicatorContainer1.setVisibility(View.GONE);
+                tv_page1.setVisibility(View.GONE);
+                container_titleNum.setVisibility(View.GONE);
+                for (int i = 0; i < size; i++) {
+                    addIndicatorToContainer(i);
+                }
+                break;
+        }
     }
 
     private void parseAttrs(Context context, AttributeSet attrs) {
@@ -127,7 +242,8 @@ public class BannerView extends FrameLayout {
         mChangePeroid = typedArray.getInteger(R.styleable.BannerView_banner_changeDuration, DEFAULT_PEROID);
         bannerIndicatorSize = typedArray.getInteger(R.styleable.BannerView_banner_indicatorSize, DEFAULT_INDICATOR_SIZE);
         canLoop = typedArray.getBoolean(R.styleable.BannerView_banner_loopable, true);
-
+        indicatorsGravity = typedArray.getInt(R.styleable.BannerView_banner_indicatorsGravity, GRAVITY_CENTER);
+        mode = typedArray.getInt(R.styleable.BannerView_banner_mode, MODE_NOTITLE_NUM);
         typedArray.recycle();
     }
 
@@ -142,7 +258,11 @@ public class BannerView extends FrameLayout {
             indicator.setState(IndicatorView.INACTIVE);
         }
         indicator.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        mIndicatorContainer.addView(indicator);
+        if (mode == MODE_NOTITLE_INDICATOR) {
+            mIndicatorContainer1.addView(indicator);
+        } else if (mode == MODE_TITLE_INDICATORS) {
+            mIndicatorContainer2.addView(indicator);
+        }
         indicators.add(indicator);
     }
 
@@ -174,7 +294,8 @@ public class BannerView extends FrameLayout {
     private void resetBanner() {
         cancelLooping();
         indicators.clear();
-        mIndicatorContainer.removeAllViews();
+        mIndicatorContainer1.removeAllViews();
+        mIndicatorContainer2.removeAllViews();
         this.items.clear();
         mBannerAdapter.notifyDataSetChanged();
     }
@@ -187,22 +308,19 @@ public class BannerView extends FrameLayout {
         if (items.size() != 0) {
             mBannerAdapter.setItems(items);
         }
-        //设置指示器
-        int size = items.size();
-        for (int i = 0; i < size; i++) {
-            addIndicatorToContainer(i);
-        }
+        initWithMode();
         //实现左右循环
         mPager.setCurrentItem(mCurrentPosition);
+        changePage();
         beginLoop();
         hasInitialized = true;
     }
+
 
     /**
      * 刷新Banner
      */
     public void refresh() {
-        cancelLooping();
         resetBanner();
         mBannerAdapter = new BannerAdapter();
         items.addAll(tempItems);
@@ -217,6 +335,7 @@ public class BannerView extends FrameLayout {
         }
         //实现左右循环
         mPager.setCurrentItem(mCurrentPosition);
+        changePage();
         beginLoop();
     }
 
@@ -252,7 +371,11 @@ public class BannerView extends FrameLayout {
             for (int i = 0; i < size; i++) {
                 indicators.get(i).setActiveColor(color);
                 if (hasInitialized) {
-                    ((IndicatorView) mIndicatorContainer.getChildAt(i)).setActiveColor(color);
+                    if(mode==MODE_NOTITLE_INDICATOR){
+                        ((IndicatorView) mIndicatorContainer1.getChildAt(i)).setActiveColor(color);
+                    }else{
+                        ((IndicatorView) mIndicatorContainer2.getChildAt(i)).setActiveColor(color);
+                    }
                 }
             }
         }
@@ -267,7 +390,11 @@ public class BannerView extends FrameLayout {
                 indicators.get(i).setInactiveColor(color);
                 //已初始化
                 if (hasInitialized) {
-                    ((IndicatorView) mIndicatorContainer.getChildAt(i)).setInactiveColor(color);
+                    if(mode==MODE_NOTITLE_INDICATOR){
+                        ((IndicatorView) mIndicatorContainer1.getChildAt(i)).setActiveColor(color);
+                    }else{
+                        ((IndicatorView) mIndicatorContainer2.getChildAt(i)).setActiveColor(color);
+                    }
                 }
             }
         }
@@ -294,6 +421,22 @@ public class BannerView extends FrameLayout {
         return this.items;
     }
 
+
+    public void setMode(@Mode int mode) {
+        this.mode = mode;
+        if(hasInitialized){
+            mIndicatorContainer1.removeAllViews();
+            mIndicatorContainer2.removeAllViews();
+            indicators.clear();
+            initWithMode();
+            changePage();
+        }
+    }
+
+    public int getMode() {
+        return mode;
+    }
+
     /**
      * 取消轮播
      */
@@ -302,7 +445,6 @@ public class BannerView extends FrameLayout {
             mLoopTimer.cancel();
         }
         isLooping = false;
-        canLoop = false;
     }
 
 
@@ -320,7 +462,7 @@ public class BannerView extends FrameLayout {
         return super.dispatchTouchEvent(ev);
     }
 
-    class BannerAdapter extends PagerAdapter {
+    private class BannerAdapter extends PagerAdapter {
 
         private List<BannerItem> datas;
 

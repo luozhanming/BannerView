@@ -15,24 +15,28 @@ public class BannerItem<T> {
     private int drawable = -1;
     private String imgUrl;
     private BannerAction mAction;
+    private String title;
 
 
-    public BannerItem(View v, @Nullable BannerAction action,@Nullable T content) {
+    public BannerItem(View v, @Nullable BannerAction action, @Nullable T content, @Nullable String title) {
         this.view = v;
         this.mContent = content;
-        this.mAction =action;
+        this.mAction = action;
+        this.title = title;
     }
 
-    public BannerItem(int drawable,@Nullable BannerAction action,@Nullable T content) {
+    public BannerItem(int drawable, @Nullable BannerAction action, @Nullable T content, @Nullable String title) {
         this.drawable = drawable;
         this.mContent = content;
-        this.mAction =action;
+        this.mAction = action;
+        this.title = title;
     }
 
-    public BannerItem(String imgUrl,@Nullable BannerAction action,@Nullable T content){
+    public BannerItem(String imgUrl, @Nullable BannerAction action, @Nullable T content, @Nullable String title) {
         this.imgUrl = imgUrl;
         this.mContent = content;
-        this.mAction =action;
+        this.mAction = action;
+        this.title = title;
     }
 
     public String getImgUrl() {
@@ -61,5 +65,13 @@ public class BannerItem<T> {
 
     public void setContent(T content) {
         this.mContent = mContent;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

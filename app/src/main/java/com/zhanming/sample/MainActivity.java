@@ -17,8 +17,11 @@ import com.zhanming.bannerview.BannerView;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private BannerView bannerView;
-    private Button  btn2, btn3, btn4, btn5;
+    private Button btn1,btn2, btn3, btn4, btn5;
     private EditText editText;
+    private int[] modes = {BannerView.MODE_NOTITLE_NUM,BannerView.MODE_NOTITLE_INDICATOR,BannerView.MODE_TITLE_NUM,BannerView.MODE_TITLE_INDICATORS};
+    private  int currentMode = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +29,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         bannerView = (BannerView) findViewById(R.id.bannerView);
 
+        btn1 = (Button) findViewById(R.id.btn1);
         btn2 = (Button) findViewById(R.id.btn2);
         btn3 = (Button) findViewById(R.id.btn3);
         btn4 = (Button) findViewById(R.id.btn4);
         btn5 = (Button) findViewById(R.id.btn5);
+        btn1.setOnClickListener(this);
         btn2.setOnClickListener(this);
         btn3.setOnClickListener(this);
         btn4.setOnClickListener(this);
@@ -40,20 +45,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView.setText("This is a textViewPage");
 
         try {
-            bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
-                @Override
-                public void onAction(BannerItem item) {
-                    Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
-
-                }
-            }, new Cat("美短", 5)))
-                    .addItem(new BannerItem<Cat>("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=2247692397,1189743173&fm=5", null, new Cat("布偶猫",5)))
-                    .addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
-                        @Override
-                        public void onAction(BannerItem item) {
-                            Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }, new Cat("中华田园", 7)))
+           bannerView.addItem(new BannerItem(R.mipmap.timg1,null,new Cat("中华猫",5),"中华猫"))
+                   .addItem(new BannerItem("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=1569462993,172008204&fm=5", new BannerAction() {
+                       @Override
+                       public void onAction(BannerItem item) {
+                           Toast.makeText(MainActivity.this,((Cat)item.getContent()).toString(),Toast.LENGTH_SHORT).show();
+                       }
+                   }, new Cat("日本猫", 4), "日本猫"))
                     .setChangePeroid(3000)
                     .setImageLoader(new PicassoLoader())
                     //    .setIndicatorActiveColor(Color.BLUE)
@@ -71,20 +69,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
+            case R.id.btn1:
+                currentMode=(currentMode+1)%4;
+                bannerView.setMode(modes[currentMode]);
+                break;
             case R.id.btn2:
-                bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg2, new BannerAction() {
-                    @Override
-                    public void onAction(BannerItem item) {
-                        Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
-                    }
-                }, new Cat("中华田园", 7)))
-                        .addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
+                bannerView.addItem(new BannerItem(R.mipmap.timg1,null,new Cat("中华猫",5),"中华猫"))
+                        .addItem(new BannerItem("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=1569462993,172008204&fm=5", new BannerAction() {
                             @Override
                             public void onAction(BannerItem item) {
-                                Toast.makeText(MainActivity.this, ((Cat) item.getContent()).toString(), Toast.LENGTH_SHORT).show();
-
+                                Toast.makeText(MainActivity.this,((Cat)item.getContent()).toString(),Toast.LENGTH_SHORT).show();
                             }
-                        }, new Cat("美短", 5)))
+                        }, new Cat("日本猫", 4), "日本猫"))
                         .refresh();
                 break;
             case R.id.btn3:

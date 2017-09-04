@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <declare-styleable name="BannerView" >
-        <attr name="banner_indicatorActiveColor" format="color"/>
-        <attr name="banner_changeDuration" format="integer"/>
-        <attr name="banner_indicatorInactiveColor" format="color"/>
-        <attr name="banner_indicatorSize" format="integer"/>
-        <attr name="banner_loopable" format="boolean"/>
+    <declare-styleable name="BannerView">
+        <attr name="banner_indicatorActiveColor" format="color" />
+        <attr name="banner_changeDuration" format="integer" />
+        <attr name="banner_indicatorInactiveColor" format="color" />
+        <attr name="banner_indicatorSize" format="integer" />
+        <attr name="banner_loopable" format="boolean" />
+        <attr name="banner_indicatorsGravity" format="enum">
+            <enum name="center" value="1" />
+            <enum name="left" value="2" />
+            <enum name="right" value="3" />
+        </attr>
+        <attr name="banner_mode" format="enum">
+            <enum name="onlyNum" value="1" />
+            <enum name="onlyIndicators" value="2" />
+            <enum name="titleWithNum" value="3" />
+            <enum name="titleWithIndicators" value="4"/>
+        </attr>
     </declare-styleable>
 </resources>

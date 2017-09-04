@@ -13,7 +13,14 @@
     <com.zhanming.bannerview.BannerView
         android:id="@+id/bannerView"
         android:layout_width="match_parent"
+        app:banner_mode="titleWithIndicators"
         android:layout_height="160dp"></com.zhanming.bannerview.BannerView>
+
+    <Button
+        android:id="@+id/btn1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="切换模式"/>
 
 
     <Button
