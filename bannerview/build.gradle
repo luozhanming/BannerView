@@ -148,6 +148,10 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
+
 artifacts {
     archives javadocJar
     archives sourcesJar
