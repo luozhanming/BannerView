@@ -3,7 +3,7 @@ Android实用广告轮播控件
 
 <img src="https://github.com/luozhanming/BannerView/blob/master/mygif.gif" width="240" height="360" />
 
-## 特性
+## Feature
 * 支持以特定时间间隔自动循环轮播的功能。
 * 多种广告展示模式。
 * 提供二次加载方法。
