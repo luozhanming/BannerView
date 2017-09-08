@@ -48,7 +48,7 @@ Android实用广告轮播控件
                 .initialize();
 ```
 
-3.当有新的广告加载时，请参考以下代码
+3.当有新的广告数据加载时，请参考以下代码
 ```Java
         bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
             @Override
