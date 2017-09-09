@@ -416,6 +416,10 @@ public class BannerView extends FrameLayout {
         return this;
     }
 
+    public boolean getCanLoop(){
+        return this.canLoop;
+    }
+
 
     public List<BannerItem> getItems() {
         return this.items;

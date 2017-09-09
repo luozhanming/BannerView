@@ -74,13 +74,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bannerView.setMode(modes[currentMode]);
                 break;
             case R.id.btn2:
-                bannerView.addItem(new BannerItem(R.mipmap.timg1,null,new Cat("中华猫",5),"中华猫"))
-                        .addItem(new BannerItem("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=1569462993,172008204&fm=5", new BannerAction() {
+                bannerView.addItem(new BannerItem("https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=1569462993,172008204&fm=5", new BannerAction() {
                             @Override
                             public void onAction(BannerItem item) {
                                 Toast.makeText(MainActivity.this,((Cat)item.getContent()).toString(),Toast.LENGTH_SHORT).show();
                             }
                         }, new Cat("日本猫", 4), "日本猫"))
+                        .addItem(new BannerItem(R.mipmap.timg1,null,new Cat("中华猫",5),"中华猫"))
                         .refresh();
                 break;
             case R.id.btn3:
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 bannerView.setChangePeroid(duration);
                 break;
             case R.id.btn5:
-                bannerView.setCanLoop(false);
+                bannerView.setCanLoop(!bannerView.getCanLoop());
                 break;
         }
     }
