@@ -1,18 +1,18 @@
 # BannerView
-This Android library helps user to use ViewPager with carousel.
+Android实用广告轮播控件
 
 <img src="https://github.com/luozhanming/BannerView/blob/master/mygif.gif" width="240" height="360" />
 
-## Features
-* The BannerView wraps the ViewPager and provides the simple method to use.
-* The BannerView can automatically change the page in the regular period which you can set.
-* Show the indicators to let you know which item is showing.
-* Customize the indicators color or use the app theme color by default.
-* Wrap your entity object to the BannerItem.
-* Provide the interface when you click the item to handle the item click event.
+## Feature
+* 支持以特定时间间隔自动循环轮播的功能。
+* 多种广告展示模式。
+* 提供二次加载方法。
+* 支持包装实体类。
+* 支持为广告提供点击动作。
+* 广告类型支持View类，图片等
 
 ## Usage
-1.Add the BannerView on the layout file.
+1.在layout文件中添加控件
 ```xml
  <com.zhanming.bannerview.BannerView
         android:id="@+id/bannerView"
@@ -21,7 +21,7 @@ This Android library helps user to use ViewPager with carousel.
         />
 ```
 
-2.Initialize the View on the code.
+2.在代码中初始化控件
 ```Java
         bannerView = (BannerView) findViewById(R.id.bannerView);
         TextView textView = new TextView(this);
@@ -48,7 +48,7 @@ This Android library helps user to use ViewPager with carousel.
                 .initialize();
 ```
 
-3.Refresh the Banner when you have loaded new datas.
+3.当有新的广告数据加载时，请参考以下代码
 ```Java
         bannerView.addItem(new BannerItem<Cat>(R.mipmap.timg, new BannerAction() {
             @Override
