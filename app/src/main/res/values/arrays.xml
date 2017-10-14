@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="modes">
+        <item>无标题带数字</item>
+        <item>无标题带指示器</item>
+        <item>标题带数字</item>
+        <item>标题带指示器</item>
+    </array>
+</resources>

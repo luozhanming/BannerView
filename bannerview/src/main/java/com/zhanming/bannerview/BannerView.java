@@ -310,6 +310,7 @@ public class BannerView extends FrameLayout {
         }
         initWithMode();
         //实现左右循环
+        mCurrentPosition = (items.size() * 50) % items.size()+(items.size()*50);   //将其ViewPager的currentItem移动至中间
         mPager.setCurrentItem(mCurrentPosition);
         changePage();
         beginLoop();
@@ -329,7 +330,7 @@ public class BannerView extends FrameLayout {
         mPager.setAdapter(mBannerAdapter);
         //设置指示器
         int size = items.size();
-        mCurrentPosition = 0;
+        mCurrentPosition = (items.size() * 50) % items.size()+(items.size()*50);
         for (int i = 0; i < size; i++) {
             addIndicatorToContainer(i);
         }
@@ -371,9 +372,9 @@ public class BannerView extends FrameLayout {
             for (int i = 0; i < size; i++) {
                 indicators.get(i).setActiveColor(color);
                 if (hasInitialized) {
-                    if(mode==MODE_NOTITLE_INDICATOR){
+                    if (mode == MODE_NOTITLE_INDICATOR) {
                         ((IndicatorView) mIndicatorContainer1.getChildAt(i)).setActiveColor(color);
-                    }else{
+                    } else {
                         ((IndicatorView) mIndicatorContainer2.getChildAt(i)).setActiveColor(color);
                     }
                 }
@@ -390,9 +391,9 @@ public class BannerView extends FrameLayout {
                 indicators.get(i).setInactiveColor(color);
                 //已初始化
                 if (hasInitialized) {
-                    if(mode==MODE_NOTITLE_INDICATOR){
+                    if (mode == MODE_NOTITLE_INDICATOR) {
                         ((IndicatorView) mIndicatorContainer1.getChildAt(i)).setActiveColor(color);
-                    }else{
+                    } else {
                         ((IndicatorView) mIndicatorContainer2.getChildAt(i)).setActiveColor(color);
                     }
                 }
@@ -416,7 +417,7 @@ public class BannerView extends FrameLayout {
         return this;
     }
 
-    public boolean getCanLoop(){
+    public boolean getCanLoop() {
         return this.canLoop;
     }
 
@@ -428,7 +429,7 @@ public class BannerView extends FrameLayout {
 
     public void setMode(@Mode int mode) {
         this.mode = mode;
-        if(hasInitialized){
+        if (hasInitialized) {
             mIndicatorContainer1.removeAllViews();
             mIndicatorContainer2.removeAllViews();
             indicators.clear();
@@ -480,8 +481,15 @@ public class BannerView extends FrameLayout {
 
         @Override
         public int getCount() {
-            return Integer.MAX_VALUE;
+            if (datas != null && datas.size() > 1) {
+                return Integer.MAX_VALUE;
+            } else if (datas != null && datas.size() == 1) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
+
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
