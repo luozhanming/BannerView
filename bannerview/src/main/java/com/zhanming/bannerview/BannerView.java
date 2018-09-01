@@ -76,10 +76,10 @@ public class BannerView extends FrameLayout {
     private int indicatorInactiveColor = -1;
     private int indicatorsGravity;
     private static final int DEFAULT_PEROID = 1000;
-    private int mChangePeroid;
-    private boolean canLoop;
-    private boolean isLooping;
-    private boolean hasInitialized = false;
+    private int mChangePeroid;    //切换周期
+    private boolean canLoop;          //是否可轮播
+    private boolean isLooping;          //是否正轮播
+    private boolean hasInitialized = false;      //是否已初始化
     private Timer mLoopTimer;
     private BannerAdapter mBannerAdapter;
     private ImageLoader mLoader;
@@ -527,9 +527,9 @@ public class BannerView extends FrameLayout {
         //通過BannerItem返回Banner显示的View
         private View getBannerItemView(BannerItem item) {
             View bannerItemView = null;
-            if (item.getView() != null) {
+            if (item.getView() != null) {   //item是View
                 bannerItemView = item.getView();
-            } else if (item.getDrawable() != -1) {
+            } else if (item.getDrawable() != -1) {    //item是drawable资源
                 ImageView view = new ImageView(getContext());
                 view.setScaleType(ImageView.ScaleType.FIT_XY);
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -545,6 +545,8 @@ public class BannerView extends FrameLayout {
                 view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 if (mLoader != null) {
                     mLoader.displayImage(getContext(), item.getImgUrl(), view);
+                }else{
+                    throw new IllegalArgumentException("Url image must set ImageLoader");
                 }
                 bannerItemView = view;
             } else {
